@@ -10,6 +10,7 @@ import PublicView from './pages/PublicView';
 import Profile from './pages/Profile';
 import AuthCallback from './pages/AuthCallback';
 import PrintResume from './pages/PrintResume';
+import Landing from './pages/Landing';
 
 function PrivateRoute({ children }) {
   const { user, loading } = useAuthStore();
@@ -53,6 +54,7 @@ export default function App() {
       />
       <Routes>
         {/* Public routes */}
+        <Route path="/" element={<PublicOnlyRoute><Landing /></PublicOnlyRoute>} />
         <Route path="/login" element={<PublicOnlyRoute><Login /></PublicOnlyRoute>} />
         <Route path="/signup" element={<PublicOnlyRoute><Signup /></PublicOnlyRoute>} />
         <Route path="/auth/callback" element={<AuthCallback />} />
@@ -65,7 +67,6 @@ export default function App() {
         <Route path="/profile" element={<PrivateRoute><Profile /></PrivateRoute>} />
 
         {/* Default */}
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
