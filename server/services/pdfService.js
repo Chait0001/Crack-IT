@@ -1,17 +1,49 @@
-import puppeteer from 'puppeteer';
+import os from 'os';
+import fs from 'fs';
+import chromium from '@sparticuz/chromium';
+import puppeteer from 'puppeteer-core';
+
+const getLocalChromePath = () => {
+  const platform = os.platform();
+  if (platform === 'darwin') {
+    return '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+  } else if (platform === 'win32') {
+    const paths = [
+      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe'
+    ];
+    for (const p of paths) {
+      if (fs.existsSync(p)) return p;
+    }
+  } else {
+    const paths = ['/usr/bin/google-chrome', '/usr/bin/chromium-browser', '/usr/bin/chromium'];
+    for (const p of paths) {
+      if (fs.existsSync(p)) return p;
+    }
+  }
+  return null;
+};
 
 export const generatePDF = async (resumeId, token) => {
   const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
   const url = `${clientUrl}/resume/print/${resumeId}?token=${token}`;
 
+  const isProd = process.env.VERCEL === '1' || process.env.NODE_ENV === 'production';
+  
+  const executablePath = isProd 
+    ? await chromium.executablePath() 
+    : getLocalChromePath();
+
   const browser = await puppeteer.launch({
-    headless: 'new',
-    args: [
+    args: isProd ? chromium.args : [
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
       '--font-render-hinting=medium',
     ],
+    defaultViewport: chromium.defaultViewport,
+    executablePath: executablePath || undefined,
+    headless: isProd ? chromium.headless : 'new',
   });
 
   try {

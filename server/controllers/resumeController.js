@@ -3,6 +3,32 @@ import ResumeVersion from '../models/ResumeVersion.js';
 import { AppError } from '../middleware/errorHandler.js';
 import { calculateResumeScore } from '../services/atsService.js';
 import { v4 as uuidv4 } from 'uuid';
+import { v2 as cloudinary } from 'cloudinary';
+import { Readable } from 'stream';
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+const uploadToCloudinary = (buffer, folder) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder },
+      (error, result) => {
+        if (error) return reject(error);
+        resolve(result.secure_url);
+      }
+    );
+    
+    const readable = new Readable();
+    readable._read = () => {};
+    readable.push(buffer);
+    readable.push(null);
+    readable.pipe(stream);
+  });
+};
 
 // GET /api/resumes
 export const getAllResumes = async (req, res, next) => {
@@ -164,9 +190,12 @@ export const uploadPhoto = async (req, res, next) => {
     if (!req.file) throw new AppError('No file uploaded', 400);
     const resume = await Resume.findOne({ _id: req.params.id, userId: req.user._id });
     if (!resume) throw new AppError('Resume not found', 404);
-    resume.sections.personalInfo.photo = `/uploads/photos/${req.file.filename}`;
+    
+    const photoUrl = await uploadToCloudinary(req.file.buffer, 'resume_photos');
+    
+    resume.sections.personalInfo.photo = photoUrl;
     resume.markModified('sections');
     await resume.save();
-    res.json({ success: true, photoUrl: resume.sections.personalInfo.photo });
+    res.json({ success: true, photoUrl });
   } catch (err) { next(err); }
 };
