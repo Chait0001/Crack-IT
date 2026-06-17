@@ -62,29 +62,63 @@ export default function Login() {
   return (
     <div className="min-h-screen flex">
       {/* Left Panel */}
-      <div className="hidden lg:flex flex-col w-1/2 bg-gradient-to-br from-primary-600 via-violet-600 to-indigo-700 p-12 justify-between relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-72 h-72 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-20 w-96 h-96 bg-white rounded-full blur-3xl" />
+      <div className="hidden lg:flex flex-col w-1/2 bg-slate-900 dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 p-12 justify-between relative overflow-hidden">
+        <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
+          {/* Subtle grid pattern background */}
+          <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
         </div>
-        <div className="relative">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-              <BadgeCheck className="w-6 h-6 text-white" />
-            </div>
-            <span className="text-white text-xl font-bold">CRACK IT!</span>
+
+        <div className="relative flex items-center gap-3">
+          <div className="w-10 h-10 bg-primary-500/10 rounded-xl flex items-center justify-center border border-primary-500/20">
+            <BadgeCheck className="w-6 h-6 text-primary-500" />
           </div>
-          <h1 className="text-white text-4xl font-bold leading-tight mb-4">
-            Build resumes that<br />
-            <span className="text-yellow-300">land interviews</span>
-          </h1>
-          <p className="text-white/80 text-lg">
-            AI-powered resume builder with ATS scoring, live preview, and smart templates.
-          </p>
+          <span className="text-white text-xl font-bold tracking-tight">CRACK IT!</span>
         </div>
+
+        <div className="relative my-auto py-8 text-center">
+          {/* Mockup Resume */}
+          <div className="w-full max-w-[240px] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-2xl relative overflow-hidden aspect-[1/1.4] mx-auto mb-8 transition-transform duration-300 hover:scale-[1.02]">
+            {/* Header skeleton */}
+            <div className="h-3 w-1/2 bg-slate-200 dark:bg-slate-800 rounded mb-1.5 mx-auto" />
+            <div className="h-1.5 w-3/4 bg-slate-100 dark:bg-slate-800/60 rounded mb-5 mx-auto" />
+            
+            {/* Summary skeleton */}
+            <div className="h-2 w-1/4 bg-primary-100 dark:bg-primary-900/30 rounded mb-2" />
+            <div className="space-y-1 mb-4">
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/60 rounded" />
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/60 rounded" />
+              <div className="h-1.5 w-5/6 bg-slate-100 dark:bg-slate-800/60 rounded" />
+            </div>
+
+            {/* Experience skeleton */}
+            <div className="h-2 w-1/3 bg-primary-100 dark:bg-primary-900/30 rounded mb-2.5" />
+            <div className="space-y-3">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <div className="h-1.5 w-1/2 bg-slate-200 dark:bg-slate-800 rounded" />
+                  <div className="h-1.5 w-1/6 bg-slate-100 dark:bg-slate-800/60 rounded" />
+                </div>
+                <div className="space-y-1">
+                  <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/60 rounded" />
+                  <div className="h-1.5 w-11/12 bg-slate-100 dark:bg-slate-800/60 rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <h2 className="text-white text-3xl font-bold mb-3 tracking-tight">Build resumes that land interviews</h2>
+          <p className="text-slate-400 text-sm max-w-sm mx-auto leading-relaxed">AI-powered resume builder with ATS scoring, live preview, and smart templates.</p>
+        </div>
+
         <div className="relative space-y-4">
-          {['✨ AI Bullet Writer & Summary Generator', '📊 Real-time ATS Score & Job Match', '📄 5 Professional Templates + PDF Export', '🔗 Shareable Resume Link'].map((f) => (
-            <div key={f} className="flex items-center gap-3 text-white/90 text-sm">
+          {[
+            '✨ AI Bullet Writer & Summary Generator',
+            '📊 Real-time ATS Score & Job Match',
+            '📄 5 Professional Templates + PDF Export',
+            '🔗 Shareable Resume Link'
+          ].map((f) => (
+            <div key={f} className="flex items-center gap-3 text-slate-400 text-sm font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-primary-500" />
               <span>{f}</span>
             </div>
           ))}
@@ -155,7 +189,7 @@ export default function Login() {
             disabled={loading}
             className="btn-secondary w-full py-3 text-sm border border-slate-200 dark:border-slate-700 mb-3"
           >
-            🚀 Try Demo Account
+            Try Demo Account
           </button>
 
           <a

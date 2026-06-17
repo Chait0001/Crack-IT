@@ -1,4 +1,4 @@
-# Crack IT! ⚡
+# Crack IT!
 
 **AI-powered resume builder** — build resumes that land interviews. Create, edit, and export ATS-friendly resumes across multiple professional templates with real-time live preview, AI-generated content, and one-click PDF/DOCX export.
 
