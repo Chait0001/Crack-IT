@@ -129,11 +129,17 @@ export const updateProfile = async (req, res, next) => {
   }
 };
 
-export const googleCallback = async (req, res) => {
-  const { accessToken, refreshToken } = generateTokens(req.user._id);
-  req.user.refreshToken = refreshToken;
-  await req.user.save({ validateBeforeSave: false });
+export const googleCallback = async (req, res, next) => {
+  try {
+    const { accessToken, refreshToken } = generateTokens(req.user._id);
+    req.user.refreshToken = refreshToken;
+    await req.user.save({ validateBeforeSave: false });
 
-  const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
-  res.redirect(`${clientUrl}/auth/callback?token=${accessToken}&refresh=${refreshToken}`);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    res.redirect(`${clientUrl}/auth/callback?token=${accessToken}&refresh=${refreshToken}`);
+  } catch (err) {
+    console.error('Google callback controller error:', err);
+    const clientUrl = process.env.CLIENT_URL || 'http://localhost:5173';
+    res.redirect(`${clientUrl}/login?error=oauth_error&message=${encodeURIComponent(err.message || 'Error saving user tokens')}`);
+  }
 };

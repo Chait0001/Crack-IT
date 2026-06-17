@@ -5,7 +5,9 @@ function formatDate(d) { if (!d) return ''; try { return new Date(d + '-01').toL
 
 export default function ClassicTemplate({ sections: s = {}, accentColor = '#1e293b', spacingScale = 1 }) {
   const pi = s.personalInfo || {};
-  const photoSrc = pi.photo ? `${BASE}${pi.photo}` : null;
+  const photoSrc = pi.photo
+    ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://') ? pi.photo : `${BASE}${pi.photo}`)
+    : null;
 
   return (
     <div className="min-h-[297mm] bg-white text-slate-800 p-10 text-[13px] leading-relaxed" style={{ fontFamily: 'Georgia, serif' }}>
@@ -14,11 +16,41 @@ export default function ClassicTemplate({ sections: s = {}, accentColor = '#1e29
         {photoSrc && <img src={photoSrc} alt="" className="w-16 h-16 rounded-full object-cover mx-auto mb-3 border-2" style={{ borderColor: accentColor }} />}
         <h1 className="text-3xl font-bold tracking-wide" style={{ color: accentColor }}>{pi.name || 'Your Name'}</h1>
         <div className="flex justify-center flex-wrap gap-x-4 gap-y-1 mt-2 text-xs text-slate-500">
-          {pi.email && <span>{pi.email}</span>}
-          {pi.phone && <span>{pi.phone}</span>}
+          {pi.email && (
+            <span>
+              <a href={`mailto:${pi.email}`} className="hover:underline">{pi.email}</a>
+            </span>
+          )}
+          {pi.phone && (
+            <span>
+              <a href={`tel:${pi.phone}`} className="hover:underline">{pi.phone}</a>
+            </span>
+          )}
           {pi.location && <span>{pi.location}</span>}
-          {pi.linkedin && <span>{pi.linkedin}</span>}
-          {pi.portfolio && <span>{pi.portfolio}</span>}
+          {pi.linkedin && (
+            <span>
+              <a
+                href={pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline font-semibold"
+              >
+                LinkedIn
+              </a>
+            </span>
+          )}
+          {pi.portfolio && (
+            <span>
+              <a
+                href={pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:underline font-semibold"
+              >
+                Portfolio
+              </a>
+            </span>
+          )}
         </div>
       </div>
 

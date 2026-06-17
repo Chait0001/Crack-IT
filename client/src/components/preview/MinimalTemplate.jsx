@@ -5,7 +5,9 @@ function formatDate(d) { if (!d) return ''; try { return new Date(d + '-01').toL
 
 export default function MinimalTemplate({ sections: s = {}, accentColor = '#6366f1', spacingScale = 1 }) {
   const pi = s.personalInfo || {};
-  const photoSrc = pi.photo ? `${BASE}${pi.photo}` : null;
+  const photoSrc = pi.photo
+    ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://') ? pi.photo : `${BASE}${pi.photo}`)
+    : null;
 
   return (
     <div className="min-h-[297mm] bg-white text-slate-700 px-12 py-10 text-[13px] leading-relaxed">
@@ -13,7 +15,41 @@ export default function MinimalTemplate({ sections: s = {}, accentColor = '#6366
       {photoSrc && <img src={photoSrc} alt="" className="w-14 h-14 rounded-full object-cover mb-4 border" />}
       <h1 className="text-4xl font-extralight tracking-tight text-slate-900 mb-1">{pi.name || 'Your Name'}</h1>
       <div className="flex flex-wrap gap-x-4 text-xs text-slate-400 mb-8">
-        {[pi.email, pi.phone, pi.location, pi.linkedin, pi.portfolio].filter(Boolean).map((v, i) => <span key={i}>{v}</span>)}
+        {pi.email && (
+          <span>
+            <a href={`mailto:${pi.email}`} className="hover:underline">{pi.email}</a>
+          </span>
+        )}
+        {pi.phone && (
+          <span>
+            <a href={`tel:${pi.phone}`} className="hover:underline">{pi.phone}</a>
+          </span>
+        )}
+        {pi.location && <span>{pi.location}</span>}
+        {pi.linkedin && (
+          <span>
+            <a
+              href={pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              LinkedIn
+            </a>
+          </span>
+        )}
+        {pi.portfolio && (
+          <span>
+            <a
+              href={pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline font-medium"
+            >
+              Portfolio
+            </a>
+          </span>
+        )}
       </div>
 
       {s.summary?.text && <p className="text-slate-500 mb-8 text-sm max-w-2xl leading-loose border-l-2 pl-4" style={{ borderColor: accentColor }}>{s.summary.text}</p>}

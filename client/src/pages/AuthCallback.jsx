@@ -14,7 +14,8 @@ export default function AuthCallback() {
     const error = params.get('error');
 
     if (error) {
-      toast.error('Google login failed. Please try again.');
+      const message = params.get('message') || 'Google login failed. Please try again.';
+      toast.error(message);
       navigate('/login');
       return;
     }

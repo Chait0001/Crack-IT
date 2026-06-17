@@ -1,7 +1,11 @@
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import {
   Document, Packer, Paragraph, TextRun, HeadingLevel,
   AlignmentType, BorderStyle, Table, TableRow, TableCell,
   WidthType, ShadingType, UnderlineType,
+  ExternalHyperlink, ImageRun
 } from 'docx';
 
 function pt(n) { return n * 20; } // half-points
@@ -30,10 +34,68 @@ function makeHeading(text) {
   });
 }
 
+const getCircularCloudinaryUrl = (url) => {
+  if (!url || !url.includes('cloudinary.com')) return url;
+  return url.replace('/image/upload/', '/image/upload/w_200,h_200,c_fill,r_max,f_png/');
+};
+
+const getPhotoBuffer = async (photo) => {
+  if (!photo) return null;
+  try {
+    if (photo.startsWith('http://') || photo.startsWith('https://')) {
+      const url = getCircularCloudinaryUrl(photo);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Failed to fetch photo: ${res.statusText}`);
+      const arrayBuffer = await res.arrayBuffer();
+      return Buffer.from(arrayBuffer);
+    } else {
+      const __filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(__filename);
+      const localPath = path.resolve(__dirname, '..', photo.startsWith('/') ? photo.slice(1) : photo);
+      if (fs.existsSync(localPath)) {
+        return fs.readFileSync(localPath);
+      }
+    }
+  } catch (err) {
+    console.error('Error loading photo for DOCX:', err);
+  }
+  return null;
+};
+
+const getPhotoType = (photo) => {
+  if (!photo) return 'png';
+  if (photo.includes('cloudinary.com')) return 'png';
+  const lower = photo.toLowerCase();
+  if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'jpg';
+  if (lower.endsWith('.gif')) return 'gif';
+  return 'png';
+};
+
 export const generateDOCX = async (resume) => {
   const s = resume.sections || {};
   const pi = s.personalInfo || {};
   const children = [];
+
+  // Profile Photo
+  if (pi.photo) {
+    const photoBuffer = await getPhotoBuffer(pi.photo);
+    if (photoBuffer) {
+      children.push(new Paragraph({
+        children: [
+          new ImageRun({
+            data: photoBuffer,
+            transformation: {
+              width: 80,
+              height: 80,
+            },
+            type: getPhotoType(pi.photo),
+          })
+        ],
+        alignment: AlignmentType.CENTER,
+        spacing: { after: pt(4) },
+      }));
+    }
+  }
 
   // Header — Name
   if (pi.name) {
@@ -45,10 +107,58 @@ export const generateDOCX = async (resume) => {
   }
 
   // Contact line
-  const contactParts = [pi.email, pi.phone, pi.location, pi.linkedin, pi.portfolio].filter(Boolean);
-  if (contactParts.length) {
+  const contactChildren = [];
+  if (pi.email) {
+    contactChildren.push(new TextRun({ text: pi.email, size: 20, color: '555577', font: 'Calibri' }));
+  }
+  if (pi.phone) {
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    contactChildren.push(new TextRun({ text: pi.phone, size: 20, color: '555577', font: 'Calibri' }));
+  }
+  if (pi.location) {
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    contactChildren.push(new TextRun({ text: pi.location, size: 20, color: '555577', font: 'Calibri' }));
+  }
+  if (pi.linkedin) {
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    contactChildren.push(new ExternalHyperlink({
+      children: [
+        new TextRun({
+          text: 'LinkedIn',
+          size: 20,
+          color: '0563C1',
+          underline: {
+            type: UnderlineType.SINGLE,
+            color: '0563C1',
+          },
+          font: 'Calibri',
+        })
+      ],
+      link: pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`,
+    }));
+  }
+  if (pi.portfolio) {
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    contactChildren.push(new ExternalHyperlink({
+      children: [
+        new TextRun({
+          text: 'Portfolio',
+          size: 20,
+          color: '0563C1',
+          underline: {
+            type: UnderlineType.SINGLE,
+            color: '0563C1',
+          },
+          font: 'Calibri',
+        })
+      ],
+      link: pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`,
+    }));
+  }
+
+  if (contactChildren.length) {
     children.push(new Paragraph({
-      children: [new TextRun({ text: contactParts.join('  |  '), size: 20, color: '555577', font: 'Calibri' })],
+      children: contactChildren,
       alignment: AlignmentType.CENTER,
       spacing: { after: pt(6) },
     }));

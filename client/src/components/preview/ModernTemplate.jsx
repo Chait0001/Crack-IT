@@ -13,7 +13,9 @@ function Dot({ filled, color }) {
 
 export default function ModernTemplate({ sections: s = {}, accentColor = '#6366f1', spacingScale = 1 }) {
   const pi = s.personalInfo || {};
-  const photoSrc = pi.photo ? `${BASE}${pi.photo}` : null;
+  const photoSrc = pi.photo
+    ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://') ? pi.photo : `${BASE}${pi.photo}`)
+    : null;
   const sp = `${Math.round(8 * spacingScale)}px`;
   const levelMap = { Beginner: 1, Intermediate: 2, Expert: 3 };
 
@@ -28,11 +30,43 @@ export default function ModernTemplate({ sections: s = {}, accentColor = '#6366f
           <h1 className="text-3xl font-bold text-slate-900 leading-none mb-1">{pi.name || 'Your Name'}</h1>
           {s.experience?.[0]?.role && <p className="text-base font-medium mb-3" style={{ color: accentColor }}>{s.experience[0].role}</p>}
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
-            {pi.email && <span>✉ {pi.email}</span>}
-            {pi.phone && <span>📱 {pi.phone}</span>}
+            {pi.email && (
+              <span>
+                ✉ <a href={`mailto:${pi.email}`} className="hover:underline">{pi.email}</a>
+              </span>
+            )}
+            {pi.phone && (
+              <span>
+                📱 <a href={`tel:${pi.phone}`} className="hover:underline">{pi.phone}</a>
+              </span>
+            )}
             {pi.location && <span>📍 {pi.location}</span>}
-            {pi.linkedin && <span>🔗 {pi.linkedin}</span>}
-            {pi.portfolio && <span>🌐 {pi.portfolio}</span>}
+            {pi.linkedin && (
+              <span>
+                🔗{' '}
+                <a
+                  href={pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  LinkedIn
+                </a>
+              </span>
+            )}
+            {pi.portfolio && (
+              <span>
+                🌐{' '}
+                <a
+                  href={pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  Portfolio
+                </a>
+              </span>
+            )}
           </div>
         </div>
       </div>

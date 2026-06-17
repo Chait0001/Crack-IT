@@ -5,7 +5,9 @@ function formatDate(d) { if (!d) return ''; try { return new Date(d + '-01').toL
 
 export default function ExecutiveTemplate({ sections: s = {}, accentColor = '#92400e', spacingScale = 1 }) {
   const pi = s.personalInfo || {};
-  const photoSrc = pi.photo ? `${BASE}${pi.photo}` : null;
+  const photoSrc = pi.photo
+    ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://') ? pi.photo : `${BASE}${pi.photo}`)
+    : null;
 
   return (
     <div className="min-h-[297mm] bg-white text-[13px] leading-relaxed">
@@ -21,11 +23,41 @@ export default function ExecutiveTemplate({ sections: s = {}, accentColor = '#92
             {s.experience?.[0]?.role && <p className="text-lg font-light mt-1 tracking-wide" style={{ color: accentColor }}>{s.experience[0].role}</p>}
           </div>
           <div className="text-right text-xs text-slate-500 space-y-0.5">
-            {pi.email && <div>{pi.email}</div>}
-            {pi.phone && <div>{pi.phone}</div>}
+            {pi.email && (
+              <div>
+                <a href={`mailto:${pi.email}`} className="hover:underline">{pi.email}</a>
+              </div>
+            )}
+            {pi.phone && (
+              <div>
+                <a href={`tel:${pi.phone}`} className="hover:underline">{pi.phone}</a>
+              </div>
+            )}
             {pi.location && <div>{pi.location}</div>}
-            {pi.linkedin && <div>{pi.linkedin}</div>}
-            {pi.portfolio && <div>{pi.portfolio}</div>}
+            {pi.linkedin && (
+              <div>
+                <a
+                  href={pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  LinkedIn
+                </a>
+              </div>
+            )}
+            {pi.portfolio && (
+              <div>
+                <a
+                  href={pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 hover:underline font-semibold"
+                >
+                  Portfolio
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

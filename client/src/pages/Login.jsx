@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { Eye, EyeOff, Zap, Mail, Lock } from 'lucide-react';
@@ -8,11 +8,26 @@ import api from '../utils/api';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { setTokens, setUser } = useAuthStore();
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
+
+  useEffect(() => {
+    const error = searchParams.get('error');
+    const message = searchParams.get('message');
+    if (error) {
+      if (error === 'google_not_configured') {
+        toast.error('Google Sign-In is not configured on the server. Please check environment variables.');
+      } else {
+        toast.error(message || 'Google authentication failed. Please try again.');
+      }
+      // Clean up search parameters in URL
+      navigate('/login', { replace: true });
+    }
+  }, [searchParams, navigate]);
 
   const onSubmit = async (data) => {
     setLoading(true);

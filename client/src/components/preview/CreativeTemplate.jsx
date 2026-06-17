@@ -5,7 +5,9 @@ function formatDate(d) { if (!d) return ''; try { return new Date(d + '-01').toL
 
 export default function CreativeTemplate({ sections: s = {}, accentColor = '#ec4899', spacingScale = 1 }) {
   const pi = s.personalInfo || {};
-  const photoSrc = pi.photo ? `${BASE}${pi.photo}` : null;
+  const photoSrc = pi.photo
+    ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://') ? pi.photo : `${BASE}${pi.photo}`)
+    : null;
 
   return (
     <div className="min-h-[297mm] bg-white text-[13px] leading-relaxed flex">
@@ -25,11 +27,45 @@ export default function CreativeTemplate({ sections: s = {}, accentColor = '#ec4
         </div>
 
         <div className="space-y-1.5 text-xs text-white/80">
-          {pi.email && <div className="flex items-start gap-2"><span className="shrink-0">✉</span><span className="break-all">{pi.email}</span></div>}
-          {pi.phone && <div className="flex items-center gap-2"><span>📱</span><span>{pi.phone}</span></div>}
+          {pi.email && (
+            <div className="flex items-start gap-2">
+              <span className="shrink-0">✉</span>
+              <a href={`mailto:${pi.email}`} className="break-all hover:underline hover:text-white text-white/95">{pi.email}</a>
+            </div>
+          )}
+          {pi.phone && (
+            <div className="flex items-center gap-2">
+              <span>📱</span>
+              <a href={`tel:${pi.phone}`} className="hover:underline hover:text-white text-white/95">{pi.phone}</a>
+            </div>
+          )}
           {pi.location && <div className="flex items-center gap-2"><span>📍</span><span>{pi.location}</span></div>}
-          {pi.linkedin && <div className="flex items-center gap-2"><span>🔗</span><span className="break-all">{pi.linkedin}</span></div>}
-          {pi.portfolio && <div className="flex items-center gap-2"><span>🌐</span><span className="break-all">{pi.portfolio}</span></div>}
+          {pi.linkedin && (
+            <div className="flex items-center gap-2">
+              <span>🔗</span>
+              <a
+                href={pi.linkedin.startsWith('http') ? pi.linkedin : `https://${pi.linkedin}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-200 hover:text-white underline font-semibold break-all"
+              >
+                LinkedIn
+              </a>
+            </div>
+          )}
+          {pi.portfolio && (
+            <div className="flex items-center gap-2">
+              <span>🌐</span>
+              <a
+                href={pi.portfolio.startsWith('http') ? pi.portfolio : `https://${pi.portfolio}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-200 hover:text-white underline font-semibold break-all"
+              >
+                Portfolio
+              </a>
+            </div>
+          )}
         </div>
 
         {/* Skills sidebar */}
