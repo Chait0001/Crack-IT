@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import { Eye, EyeOff, Zap, Mail, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, BadgeCheck, Mail, Lock, User } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import api from '../utils/api';
 
@@ -54,7 +54,7 @@ export default function Signup() {
         </div>
         <div className="relative flex items-center gap-3">
           <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
-            <Zap className="w-6 h-6 text-white" />
+            <BadgeCheck className="w-6 h-6 text-white" />
           </div>
           <span className="text-white text-xl font-bold">CRACK IT!</span>
         </div>
@@ -78,7 +78,7 @@ export default function Signup() {
         <div className="w-full max-w-md animate-fade-in">
           <div className="lg:hidden flex items-center gap-2 mb-8">
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
+              <BadgeCheck className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg">CRACK IT!</span>
           </div>

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
-import { ArrowLeft, User, Camera, Save, Zap } from 'lucide-react';
+import { ArrowLeft, User, Camera, Save, BadgeCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../utils/api';
 
@@ -45,7 +45,7 @@ export default function Profile() {
         </button>
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-gradient-to-br from-primary-600 to-violet-600 rounded-lg flex items-center justify-center">
-            <Zap className="w-4 h-4 text-white" />
+            <BadgeCheck className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold gradient-text">CRACK IT!</span>
         </div>

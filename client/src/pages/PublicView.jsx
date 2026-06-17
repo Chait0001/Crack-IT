@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import api from '../utils/api';
 import ResumePreview from '../components/preview/ResumePreview';
 import { useResumeStore } from '../store/resumeStore';
-import { Zap, Eye } from 'lucide-react';
+import { BadgeCheck, Eye } from 'lucide-react';
 
 export default function PublicView() {
   const { shareId } = useParams();
@@ -46,7 +46,7 @@ export default function PublicView() {
       {/* Banner */}
       <div className="bg-gradient-to-r from-primary-600 to-violet-600 text-white py-3 px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Zap className="w-4 h-4" />
+          <BadgeCheck className="w-4 h-4" />
           <span className="text-sm font-medium">Powered by CRACK IT! Resume Builder</span>
         </div>
         <div className="flex items-center gap-2 text-sm text-white/80">

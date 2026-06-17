@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
-  Zap, 
+  BadgeCheck, 
   Sparkles, 
   Layout, 
   Download, 
@@ -71,7 +71,7 @@ export default function Landing() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 bg-primary-600 rounded-xl flex items-center justify-center shadow-md shadow-primary-500/20 group-hover:scale-105 transition-transform duration-200">
-              <Zap className="w-5 h-5 text-white" />
+              <BadgeCheck className="w-5 h-5 text-white" />
             </div>
             <span className="font-extrabold text-xl tracking-tight text-slate-900 dark:text-white">
               CRACK <span className="text-primary-600 dark:text-primary-400">IT!</span>
@@ -460,7 +460,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
-              <Zap className="w-4 h-4 text-white" />
+              <BadgeCheck className="w-4 h-4 text-white" />
             </div>
             <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
               CRACK IT!
