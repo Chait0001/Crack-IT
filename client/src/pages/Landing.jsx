@@ -415,20 +415,15 @@ export default function Landing() {
           </div>
 
           {/* Steps */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-16">
             {steps.map((step, i) => (
-              <div key={i} className="relative space-y-4">
+              <div key={i} className="space-y-4">
                 {/* Number */}
-                <div className="text-5xl font-black text-slate-200 dark:text-slate-800/80 tracking-tight select-none">
+                <div className="text-5xl font-black text-primary-500/20 dark:text-primary-400/20 tracking-tight select-none">
                   {step.step}
                 </div>
                 <h4 className="text-lg font-bold text-slate-900 dark:text-white">{step.title}</h4>
                 <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed">{step.description}</p>
-                
-                {/* Separator line for desktop */}
-                {i < 2 && (
-                  <div className="hidden md:block absolute top-6 right-0 left-full w-full h-[1px] bg-slate-200 dark:bg-slate-800 -translate-x-12 z-0" />
-                )}
               </div>
             ))}
           </div>
