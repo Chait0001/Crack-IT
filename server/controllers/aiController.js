@@ -25,6 +25,10 @@ export const fixGrammar = async (req, res, next) => {
 export const generateSummary = async (req, res, next) => {
   try {
     const { resumeId } = req.body;
+    console.log(`📡 [AI Summary Route] POST /api/ai/generate-summary hit with resumeId: ${resumeId}`);
+    const key = process.env.OPENAI_API_KEY || '';
+    console.log(`🔑 API Key (first 5 chars): ${key.substring(0, 5)}...`);
+    
     const resume = await Resume.findOne({ _id: resumeId, userId: req.user._id });
     if (!resume) throw new AppError('Resume not found', 404);
     const { experience, skills, personalInfo } = resume.sections;
@@ -33,7 +37,10 @@ export const generateSummary = async (req, res, next) => {
       skills: skills || [],
       name: personalInfo?.name || '',
     });
-  } catch (err) { next(err); }
+  } catch (err) { 
+    console.error('❌ Error in generateSummary:', err);
+    next(err); 
+  }
 };
 
 export const generateCoverLetter = async (req, res, next) => {

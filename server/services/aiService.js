@@ -13,6 +13,7 @@ if (!MOCK_MODE) {
 const MOCK_DELAYS = [30, 50, 40, 35, 45]; // ms between tokens in mock mode
 
 async function streamMockResponse(res, text) {
+  startSSE(res);
   const words = text.split(' ');
   for (let i = 0; i < words.length; i++) {
     const chunk = (i === 0 ? '' : ' ') + words[i];
@@ -32,30 +33,38 @@ function startSSE(res) {
 }
 
 async function streamOpenAI(res, messages, systemPrompt) {
+  console.log('🤖 Requesting Groq stream completion with model llama-3.1-8b-instant...');
   const stream = await openai.chat.completions.create({
-    model: 'llama3-8b-8192',
+    model: 'llama-3.1-8b-instant',
     messages: [{ role: 'system', content: systemPrompt }, ...messages],
     stream: true,
     max_tokens: 1024,
     temperature: 0.7,
   });
 
-  for await (const chunk of stream) {
-    const content = chunk.choices[0]?.delta?.content;
-    if (content) {
-      res.write(`data: ${JSON.stringify({ content })}\n\n`);
+  console.log('🚀 Groq connection established. Starting SSE stream headers...');
+  startSSE(res);
+
+  try {
+    for await (const chunk of stream) {
+      const content = chunk.choices[0]?.delta?.content;
+      if (content) {
+        res.write(`data: ${JSON.stringify({ content })}\n\n`);
+      }
+      if (chunk.choices[0]?.finish_reason === 'stop') {
+        break;
+      }
     }
-    if (chunk.choices[0]?.finish_reason === 'stop') {
-      break;
-    }
+    res.write(`data: [DONE]\n\n`);
+    res.end();
+  } catch (streamErr) {
+    console.error('❌ Error during SSE stream reading:', streamErr);
+    res.write(`data: ${JSON.stringify({ error: streamErr.message })}\n\n`);
+    res.end();
   }
-  res.write(`data: [DONE]\n\n`);
-  res.end();
 }
 
 export const streamBulletPoints = async (res, { role, company, description }) => {
-  startSSE(res);
-
   if (MOCK_MODE) {
     const mock = `• Led cross-functional team of 8 engineers to deliver ${role} projects at ${company}, reducing time-to-market by 35%\n• Architected scalable microservices infrastructure handling 2M+ daily requests with 99.9% uptime\n• Implemented automated testing pipeline reducing bug rate by 60% and saving 20+ hours/week\n• Collaborated with product and design teams to launch 3 major features that increased user retention by 28%\n• Mentored 4 junior developers, conducting weekly code reviews and accelerating their onboarding by 50%`;
     return streamMockResponse(res, mock);
@@ -74,8 +83,6 @@ Requirements:
 };
 
 export const streamGrammarFix = async (res, { text, mode }) => {
-  startSSE(res);
-
   const modeInstructions = {
     grammar: 'Fix all grammar and spelling errors while keeping the same meaning and tone.',
     confident: 'Rewrite with a more confident, assertive tone using active voice and powerful verbs.',
@@ -98,8 +105,6 @@ export const streamGrammarFix = async (res, { text, mode }) => {
 };
 
 export const streamSummary = async (res, { experience, skills, name }) => {
-  startSSE(res);
-
   if (MOCK_MODE) {
     const mock = `Results-driven ${experience[0]?.role || 'professional'} with ${experience.length}+ years of experience building scalable solutions and leading high-impact initiatives. Proven track record of delivering measurable business outcomes through technical excellence and cross-functional collaboration. Passionate about ${skills.slice(0, 3).map(s => s.name).join(', ')} and committed to continuous innovation.`;
     return streamMockResponse(res, mock);
@@ -114,8 +119,6 @@ export const streamSummary = async (res, { experience, skills, name }) => {
 };
 
 export const streamCoverLetter = async (res, { resumeData, jobTitle, company, jobDescription }) => {
-  startSSE(res);
-
   if (MOCK_MODE) {
     const name = resumeData?.sections?.personalInfo?.name || 'Applicant';
     const role = resumeData?.sections?.experience?.[0]?.role || 'professional';
@@ -134,8 +137,6 @@ export const streamCoverLetter = async (res, { resumeData, jobTitle, company, jo
 };
 
 export const streamToneAdjust = async (res, { text, tone }) => {
-  startSSE(res);
-
   if (MOCK_MODE) {
     const mocks = {
       professional: `Demonstrated expertise in ${text.split(' ').slice(0, 4).join(' ')} across enterprise environments.`,
@@ -157,3 +158,4 @@ export const streamToneAdjust = async (res, { text, tone }) => {
     [{ role: 'user', content: `Rewrite this resume text with a ${tone} tone (${toneGuides[tone]}):\n\n"${text}"\n\nReturn only the rewritten text.` }],
     'You are an expert resume editor focused on tone and style.');
 };
+
