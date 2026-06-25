@@ -56,7 +56,7 @@ export const streamSSE = async (url, body, { onChunk, onDone, onError, signal } 
   }
 };
 
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const BASE = import.meta.env.VITE_API_URL || '/api';
 
 export const AI_ENDPOINTS = {
   bullet:   `${BASE}/ai/improve-bullet`,

@@ -18,7 +18,7 @@ export default function ExportMenu({ resumeId, onClose }) {
     setLoading(format);
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/export/${resumeId}/${format}`,
+        `${import.meta.env.VITE_API_URL || '/api'}/export/${resumeId}/${format}`,
         { headers: { Authorization: `Bearer ${localStorage.getItem('accessToken')}` } }
       );
       if (!response.ok) throw new Error('Export failed');

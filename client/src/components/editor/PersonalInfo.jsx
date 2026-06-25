@@ -30,7 +30,7 @@ export default function PersonalInfo({ resumeId }) {
   const photoSrc = pi.photo
     ? (pi.photo.startsWith('http://') || pi.photo.startsWith('https://')
       ? pi.photo
-      : `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${pi.photo}`)
+      : `${import.meta.env.VITE_API_URL?.replace('/api', '') || ''}${pi.photo}`)
     : null;
 
   return (

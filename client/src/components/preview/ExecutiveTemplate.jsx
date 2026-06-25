@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+const BASE = import.meta.env.VITE_API_URL?.replace('/api', '') || '';
 function formatDate(d) { if (!d) return ''; try { return new Date(d + '-01').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); } catch { return d; } }
 
 export default function ExecutiveTemplate({ sections: s = {}, accentColor = '#92400e', spacingScale = 1 }) {

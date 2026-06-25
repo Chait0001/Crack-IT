@@ -34,7 +34,7 @@ export default function Profile() {
   };
 
   const avatarSrc = avatarPreview?.startsWith('blob:') ? avatarPreview
-    : avatarPreview ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000'}${avatarPreview}`
+    : avatarPreview ? `${import.meta.env.VITE_API_URL?.replace('/api', '') || ''}${avatarPreview}`
     : null;
 
   return (

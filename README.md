@@ -112,18 +112,25 @@ The app will be running at `http://localhost:5173`, talking to the API at `http:
 
 This project deploys as a single Vercel project: the React client builds as a static site, and the Express backend runs as Vercel serverless functions under `/api`. See `vercel.json` at the repo root for the build and routing configuration.
 
-Required environment variables in the Vercel dashboard (Project Settings → Environment Variables):
+### Environment Variables (Vercel Dashboard)
 
-- `MONGODB_URI`
-- `JWT_SECRET`
-- `JWT_REFRESH_SECRET`
-- `OPENAI_API_KEY`
-- `CLOUDINARY_CLOUD_NAME`
-- `CLOUDINARY_API_KEY`
-- `CLOUDINARY_API_SECRET`
-- `CLIENT_URL` (your deployed Vercel URL)
-- `VITE_API_URL` (your deployed Vercel URL + `/api`)
-- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (optional, for Google Sign-In)
+All of the following must be set in **Project Settings → Environment Variables** for both **Production** and **Preview** environments:
+
+| Variable | Example | Notes |
+|---|---|---|
+| `VITE_API_URL` | `/api` | **Baked in at build time by Vite.** Use `/api` (relative) since frontend and backend share the same Vercel domain. |
+| `CLIENT_URL` | `https://crack-it-pi.vercel.app` | Used by the backend for CORS. Set to your production domain. |
+| `MONGODB_URI` | `mongodb+srv://...` | MongoDB Atlas connection string. |
+| `JWT_SECRET` | (random string) | Secret for signing access tokens. |
+| `JWT_REFRESH_SECRET` | (random string) | Secret for signing refresh tokens. |
+| `OPENAI_API_KEY` | `gsk_...` or `sk-...` | Groq or OpenAI API key for AI features. |
+| `CLOUDINARY_CLOUD_NAME` | `your_cloud_name` | For profile photo uploads. |
+| `CLOUDINARY_API_KEY` | `123456789` | Cloudinary API key. |
+| `CLOUDINARY_API_SECRET` | `your_secret` | Cloudinary API secret. |
+| `GOOGLE_CLIENT_ID` | (optional) | For Google Sign-In. |
+| `GOOGLE_CLIENT_SECRET` | (optional) | For Google Sign-In. |
+
+> **Important:** Vite bakes `VITE_*` variables into the JavaScript bundle at build time — they are NOT read at runtime. If you change `VITE_API_URL` in the Vercel dashboard, you must **redeploy** for the change to take effect. Non-`VITE_` variables (like `MONGODB_URI`) are read at runtime by the serverless functions and take effect immediately.
 
 If you're setting up Google Sign-In, make sure to register the correct Authorized redirect URIs in the Google Cloud Console for both your local and production callback URLs.
 
