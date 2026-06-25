@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { ArrowLeft, User, Camera, Save, BadgeCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -43,12 +43,12 @@ export default function Profile() {
         <button onClick={() => navigate('/dashboard')} className="btn-ghost p-2 rounded-xl">
           <ArrowLeft className="w-4 h-4" />
         </button>
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="w-7 h-7 bg-gradient-to-br from-primary-600 to-violet-600 rounded-lg flex items-center justify-center">
             <BadgeCheck className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold gradient-text">CRACK IT!</span>
-        </div>
+        </Link>
         <span className="text-slate-400 dark:text-slate-600">/</span>
         <span className="text-slate-600 dark:text-slate-400 text-sm">Profile</span>
       </nav>

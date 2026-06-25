@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Plus, FileText, BadgeCheck, LogOut, User, Moon, Sun, Eye, Trash2, Copy, Clock, BarChart2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
@@ -148,12 +148,12 @@ export default function Dashboard() {
       {/* Navbar */}
       <nav className="sticky top-0 z-40 glass border-b border-slate-200/50 dark:border-slate-800/50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-violet-600 rounded-lg flex items-center justify-center">
               <BadgeCheck className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg gradient-text">CRACK IT!</span>
-          </div>
+          </Link>
           <div className="flex items-center gap-2">
             <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl">
               {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}

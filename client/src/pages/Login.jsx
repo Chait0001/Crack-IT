@@ -68,12 +68,12 @@ export default function Login() {
           <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, #6366f1 1.5px, transparent 1.5px)', backgroundSize: '24px 24px' }} />
         </div>
 
-        <div className="relative flex items-center gap-3">
+        <Link to="/" className="relative flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
           <div className="w-10 h-10 bg-primary-500/10 rounded-xl flex items-center justify-center border border-primary-500/20">
             <BadgeCheck className="w-6 h-6 text-primary-500" />
           </div>
           <span className="text-white text-xl font-bold tracking-tight">CRACK IT!</span>
-        </div>
+        </Link>
 
         <div className="relative my-auto py-8 text-center">
           {/* Mockup Resume */}
@@ -128,12 +128,12 @@ export default function Login() {
       {/* Right Panel */}
       <div className="flex-1 flex items-center justify-center p-8 bg-slate-50 dark:bg-slate-950">
         <div className="w-full max-w-md animate-fade-in">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
+          <Link to="/" className="lg:hidden flex items-center gap-2 mb-8 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center">
               <BadgeCheck className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg">CRACK IT!</span>
-          </div>
+          </Link>
 
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Welcome back</h2>
           <p className="text-slate-500 dark:text-slate-400 mb-8">Sign in to your account to continue</p>

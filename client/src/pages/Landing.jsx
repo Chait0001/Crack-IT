@@ -453,14 +453,14 @@ export default function Landing() {
       {/* Minimal Footer */}
       <footer className="border-t border-slate-200 dark:border-slate-800/60 bg-slate-50 dark:bg-slate-950 py-12 transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
             <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
               <BadgeCheck className="w-4 h-4 text-white" />
             </div>
             <span className="font-extrabold text-sm tracking-tight text-slate-900 dark:text-white">
               CRACK IT!
             </span>
-          </div>
+          </Link>
           <p className="text-xs text-slate-400 dark:text-slate-500">
             © {new Date().getFullYear()} Crack IT. All rights reserved. Designed for candidates who deliver.
           </p>

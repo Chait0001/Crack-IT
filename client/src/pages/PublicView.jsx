@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import api from '../utils/api';
 import ResumePreview from '../components/preview/ResumePreview';
 import { useResumeStore } from '../store/resumeStore';
@@ -45,10 +45,10 @@ export default function PublicView() {
     <div className="min-h-screen bg-slate-100 dark:bg-slate-900">
       {/* Banner */}
       <div className="bg-gradient-to-r from-primary-600 to-violet-600 text-white py-3 px-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
           <BadgeCheck className="w-4 h-4" />
           <span className="text-sm font-medium">Powered by CRACK IT! Resume Builder</span>
-        </div>
+        </Link>
         <div className="flex items-center gap-2 text-sm text-white/80">
           <Eye className="w-3 h-3" />
           <span>Read-only view</span>
