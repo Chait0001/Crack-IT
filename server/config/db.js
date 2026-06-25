@@ -14,10 +14,11 @@ const connectDB = async () => {
   if (!cached.promise) {
     const opts = {
       dbName: 'crack',
-      bufferCommands: false,
     };
 
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/crack-it-resume';
+    const uri =
+      process.env.MONGODB_URI || 'mongodb://localhost:27017/crack-it-resume';
+
     cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
       console.log('✅ MongoDB Connected (new connection)');
       return mongooseInstance;
