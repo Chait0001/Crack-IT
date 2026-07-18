@@ -12,12 +12,32 @@ function pt(n) { return n * 20; } // half-points
 
 const accentColor = '6366F1';
 
-function makeBold(text, size = 24) {
-  return new TextRun({ text, bold: true, size, font: 'Calibri' });
+function compactScale(resume) {
+  const s = resume.sections || {};
+  const text = [
+    s.summary?.text,
+    ...(s.experience || []).flatMap((item) => [item.role, item.company, ...(item.bullets || [])]),
+    ...(s.projects || []).flatMap((item) => [item.name, item.description]),
+    ...(s.education || []).flatMap((item) => [item.institution, item.degree, item.field]),
+  ].filter(Boolean).join(' ');
+
+  // DOCX has no reliable cross-platform page-count API. This conservative
+  // content-length threshold preserves the normal document for short resumes
+  // and only reduces long documents enough to strongly favour one page.
+  if (text.length > 5000) return 0.72;
+  if (text.length > 3900) return 0.8;
+  if (text.length > 2900) return 0.9;
+  return 1;
 }
 
-function makeRun(text, size = 22) {
-  return new TextRun({ text, size, font: 'Calibri' });
+function scaled(size, scale) { return Math.max(14, Math.round(size * scale)); }
+
+function makeBold(text, size = 24, scale = 1) {
+  return new TextRun({ text, bold: true, size: scaled(size, scale), font: 'Calibri' });
+}
+
+function makeRun(text, size = 22, scale = 1) {
+  return new TextRun({ text, size: scaled(size, scale), font: 'Calibri' });
 }
 
 function makeLine() {
@@ -27,9 +47,9 @@ function makeLine() {
   });
 }
 
-function makeHeading(text) {
+function makeHeading(text, scale = 1) {
   return new Paragraph({
-    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 24, color: accentColor, font: 'Calibri' })],
+    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: scaled(24, scale), color: accentColor, font: 'Calibri' })],
     spacing: { before: pt(8), after: pt(2) },
   });
 }
@@ -74,6 +94,7 @@ const getPhotoType = (photo) => {
 export const generateDOCX = async (resume) => {
   const s = resume.sections || {};
   const pi = s.personalInfo || {};
+  const scale = compactScale(resume);
   const children = [];
 
   // Profile Photo
@@ -100,7 +121,7 @@ export const generateDOCX = async (resume) => {
   // Header — Name
   if (pi.name) {
     children.push(new Paragraph({
-      children: [new TextRun({ text: pi.name, bold: true, size: 48, font: 'Calibri', color: '1a1a2e' })],
+      children: [new TextRun({ text: pi.name, bold: true, size: scaled(48, scale), font: 'Calibri', color: '1a1a2e' })],
       alignment: AlignmentType.CENTER,
       spacing: { after: pt(4) },
     }));
@@ -109,23 +130,23 @@ export const generateDOCX = async (resume) => {
   // Contact line
   const contactChildren = [];
   if (pi.email) {
-    contactChildren.push(new TextRun({ text: pi.email, size: 20, color: '555577', font: 'Calibri' }));
+    contactChildren.push(new TextRun({ text: pi.email, size: scaled(20, scale), color: '555577', font: 'Calibri' }));
   }
   if (pi.phone) {
-    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
-    contactChildren.push(new TextRun({ text: pi.phone, size: 20, color: '555577', font: 'Calibri' }));
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: scaled(20, scale), color: '555577', font: 'Calibri' }));
+    contactChildren.push(new TextRun({ text: pi.phone, size: scaled(20, scale), color: '555577', font: 'Calibri' }));
   }
   if (pi.location) {
-    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
-    contactChildren.push(new TextRun({ text: pi.location, size: 20, color: '555577', font: 'Calibri' }));
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: scaled(20, scale), color: '555577', font: 'Calibri' }));
+    contactChildren.push(new TextRun({ text: pi.location, size: scaled(20, scale), color: '555577', font: 'Calibri' }));
   }
   if (pi.linkedin) {
-    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: scaled(20, scale), color: '555577', font: 'Calibri' }));
     contactChildren.push(new ExternalHyperlink({
       children: [
         new TextRun({
           text: 'LinkedIn',
-          size: 20,
+          size: scaled(20, scale),
           color: '0563C1',
           underline: {
             type: UnderlineType.SINGLE,
@@ -138,12 +159,12 @@ export const generateDOCX = async (resume) => {
     }));
   }
   if (pi.portfolio) {
-    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: 20, color: '555577', font: 'Calibri' }));
+    if (contactChildren.length) contactChildren.push(new TextRun({ text: '  |  ', size: scaled(20, scale), color: '555577', font: 'Calibri' }));
     contactChildren.push(new ExternalHyperlink({
       children: [
         new TextRun({
           text: 'Portfolio',
-          size: 20,
+          size: scaled(20, scale),
           color: '0563C1',
           underline: {
             type: UnderlineType.SINGLE,
@@ -168,31 +189,31 @@ export const generateDOCX = async (resume) => {
 
   // Summary
   if (s.summary?.text) {
-    children.push(makeHeading('Professional Summary'));
+    children.push(makeHeading('Professional Summary', scale));
     children.push(makeLine());
-    children.push(new Paragraph({ children: [makeRun(s.summary.text)], spacing: { after: pt(4) } }));
+    children.push(new Paragraph({ children: [makeRun(s.summary.text, 22, scale)], spacing: { after: pt(4) } }));
   }
 
   // Experience
   if ((s.experience || []).length > 0) {
-    children.push(makeHeading('Experience'));
+    children.push(makeHeading('Experience', scale));
     children.push(makeLine());
     s.experience.forEach((exp) => {
       children.push(new Paragraph({
         children: [
-          makeBold(`${exp.role} — `),
-          new TextRun({ text: exp.company, size: 24, color: accentColor, font: 'Calibri' }),
+          makeBold(`${exp.role} — `, 24, scale),
+          new TextRun({ text: exp.company, size: scaled(24, scale), color: accentColor, font: 'Calibri' }),
         ],
         spacing: { before: pt(4), after: pt(1) },
       }));
       const dateStr = `${exp.startDate || ''} – ${exp.current ? 'Present' : exp.endDate || ''}`;
       children.push(new Paragraph({
-        children: [new TextRun({ text: dateStr, size: 20, italics: true, color: '777788', font: 'Calibri' })],
+        children: [new TextRun({ text: dateStr, size: scaled(20, scale), italics: true, color: '777788', font: 'Calibri' })],
         spacing: { after: pt(2) },
       }));
       (exp.bullets || []).forEach((bullet) => {
         children.push(new Paragraph({
-          children: [makeRun(`• ${bullet}`)],
+          children: [makeRun(`• ${bullet}`, 22, scale)],
           spacing: { before: pt(1), after: pt(1) },
           indent: { left: pt(16) },
         }));
@@ -202,11 +223,11 @@ export const generateDOCX = async (resume) => {
 
   // Education
   if ((s.education || []).length > 0) {
-    children.push(makeHeading('Education'));
+    children.push(makeHeading('Education', scale));
     children.push(makeLine());
     s.education.forEach((edu) => {
       children.push(new Paragraph({
-        children: [makeBold(`${edu.degree} in ${edu.field}`), makeRun(` — ${edu.institution}`)],
+        children: [makeBold(`${edu.degree} in ${edu.field}`, 24, scale), makeRun(` — ${edu.institution}`, 22, scale)],
         spacing: { before: pt(4), after: pt(1) },
       }));
       const parts = [];
@@ -214,7 +235,7 @@ export const generateDOCX = async (resume) => {
       if (edu.gpa) parts.push(`GPA: ${edu.gpa}`);
       if (parts.length) {
         children.push(new Paragraph({
-          children: [new TextRun({ text: parts.join('  |  '), size: 20, italics: true, color: '777788', font: 'Calibri' })],
+          children: [new TextRun({ text: parts.join('  |  '), size: scaled(20, scale), italics: true, color: '777788', font: 'Calibri' })],
           spacing: { after: pt(2) },
         }));
       }
@@ -223,40 +244,40 @@ export const generateDOCX = async (resume) => {
 
   // Skills
   if ((s.skills || []).length > 0) {
-    children.push(makeHeading('Skills'));
+    children.push(makeHeading('Skills', scale));
     children.push(makeLine());
     const skillText = s.skills.map((sk) => `${sk.name} (${sk.level})`).join('  •  ');
-    children.push(new Paragraph({ children: [makeRun(skillText)], spacing: { after: pt(4) } }));
+    children.push(new Paragraph({ children: [makeRun(skillText, 22, scale)], spacing: { after: pt(4) } }));
   }
 
   // Projects
   if ((s.projects || []).length > 0) {
-    children.push(makeHeading('Projects'));
+    children.push(makeHeading('Projects', scale));
     children.push(makeLine());
     s.projects.forEach((proj) => {
       children.push(new Paragraph({
-        children: [makeBold(proj.name)],
+        children: [makeBold(proj.name, 24, scale)],
         spacing: { before: pt(4), after: pt(1) },
       }));
       if (proj.techStack?.length) {
         children.push(new Paragraph({
-          children: [new TextRun({ text: proj.techStack.join(', '), size: 20, color: accentColor, font: 'Calibri' })],
+          children: [new TextRun({ text: proj.techStack.join(', '), size: scaled(20, scale), color: accentColor, font: 'Calibri' })],
           spacing: { after: pt(1) },
         }));
       }
       if (proj.description) {
-        children.push(new Paragraph({ children: [makeRun(proj.description)], spacing: { after: pt(2) } }));
+        children.push(new Paragraph({ children: [makeRun(proj.description, 22, scale)], spacing: { after: pt(2) } }));
       }
     });
   }
 
   // Certifications
   if ((s.certifications || []).length > 0) {
-    children.push(makeHeading('Certifications'));
+    children.push(makeHeading('Certifications', scale));
     children.push(makeLine());
     s.certifications.forEach((cert) => {
       children.push(new Paragraph({
-        children: [makeBold(cert.name), makeRun(` — ${cert.issuer}${cert.date ? ' (' + cert.date + ')' : ''}`)],
+        children: [makeBold(cert.name, 24, scale), makeRun(` — ${cert.issuer}${cert.date ? ' (' + cert.date + ')' : ''}`, 22, scale)],
         spacing: { before: pt(2), after: pt(2) },
       }));
     });

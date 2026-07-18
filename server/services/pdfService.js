@@ -52,10 +52,11 @@ export const generatePDF = async (resumeId, token) => {
     await page.setViewport({ width: 1200, height: 1600 });
 
     // Navigate and wait for content to render
-    await page.goto(url, { waitUntil: 'networkidle0', timeout: 30000 });
+    await page.goto(url, { waitUntil: 'networkidle2', timeout: 45000 });
 
-    // Wait for the resume content to be rendered
-    await page.waitForSelector('#resume-print-root', { timeout: 10000 }).catch(() => {});
+    // Do not export a loading/fallback page. The client marks this only after
+    // it has fetched and rendered the requested resume.
+    await page.waitForSelector('[data-print-ready="true"]', { timeout: 30000 });
 
     // Small delay for fonts and animations to settle
     await new Promise((r) => setTimeout(r, 1500));

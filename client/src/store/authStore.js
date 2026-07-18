@@ -1,11 +1,8 @@
 import { create } from 'zustand';
 import api from '../utils/api';
 
-const getInitialTheme = () => {
-  const stored = localStorage.getItem('theme');
-  if (stored) return stored;
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-};
+// The product now uses one warm editorial visual language everywhere.
+const getInitialTheme = () => 'light';
 
 export const useAuthStore = create((set, get) => ({
   user: null,
@@ -14,20 +11,13 @@ export const useAuthStore = create((set, get) => ({
   loading: true,
   theme: getInitialTheme(),
 
-  setTheme: (theme) => {
-    localStorage.setItem('theme', theme);
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    set({ theme });
+  setTheme: () => {
+    localStorage.setItem('theme', 'light');
+    document.documentElement.classList.remove('dark');
+    set({ theme: 'light' });
   },
 
-  toggleTheme: () => {
-    const { theme, setTheme } = get();
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  },
+  toggleTheme: () => get().setTheme(),
 
   setTokens: (accessToken, refreshToken) => {
     localStorage.setItem('accessToken', accessToken);
@@ -55,8 +45,7 @@ export const useAuthStore = create((set, get) => ({
   init: () => {
     const { theme, fetchProfile, accessToken } = get();
     // Apply saved theme
-    if (theme === 'dark') document.documentElement.classList.add('dark');
-    else document.documentElement.classList.remove('dark');
+    document.documentElement.classList.remove('dark');
     if (accessToken) fetchProfile();
     else set({ loading: false });
   },

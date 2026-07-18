@@ -1,20 +1,58 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { Plus, FileText, BadgeCheck, LogOut, User, Moon, Sun, Eye, Trash2, Copy, Clock, BarChart2 } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  ArrowUpRight,
+  BadgeCheck,
+  BarChart3,
+  Clock3,
+  Copy,
+  Eye,
+  FileText,
+  FilePlus2,
+  LogOut,
+  Moon,
+  Plus,
+  Sparkles,
+  Sun,
+  Trash2,
+  UserRound,
+} from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 import toast from 'react-hot-toast';
 import { useAuthStore } from '../store/authStore';
 import { useResumeStore } from '../store/resumeStore';
 import api from '../utils/api';
-import { formatDistanceToNow } from 'date-fns';
 
-function ScoreBadge({ score }) {
-  const color = score >= 71 ? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-900/30 dark:text-emerald-400'
-    : score >= 41 ? 'text-amber-600 bg-amber-50 dark:bg-amber-900/30 dark:text-amber-400'
-    : 'text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400';
+const TEMPLATE_LABELS = {
+  modern: 'Modern',
+  classic: 'Classic',
+  minimal: 'Minimal',
+  creative: 'Creative',
+  executive: 'Executive',
+};
+
+function readinessCopy(score) {
+  if (score >= 71) return { label: 'Ready to refine', tone: 'ready' };
+  if (score >= 41) return { label: 'Taking shape', tone: 'progress' };
+  return { label: 'Needs attention', tone: 'starting' };
+}
+
+function ResumeArtwork({ template = 'modern', title }) {
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${color}`}>
-      <BarChart2 className="w-3 h-3" />{score}
-    </span>
+    <div className={`dashboard-artwork dashboard-artwork-${template}`} aria-hidden="true">
+      <div className="dashboard-sheet">
+        <div className="dashboard-sheet-rule" />
+        <div className="dashboard-sheet-name">{title?.slice(0, 18) || 'Untitled Resume'}</div>
+        <div className="dashboard-sheet-contact" />
+        <div className="dashboard-sheet-label" />
+        <div className="dashboard-sheet-line wide" />
+        <div className="dashboard-sheet-line" />
+        <div className="dashboard-sheet-line short" />
+        <div className="dashboard-sheet-label second" />
+        <div className="dashboard-sheet-line wide" />
+        <div className="dashboard-sheet-line" />
+      </div>
+    </div>
   );
 }
 
@@ -22,95 +60,79 @@ function ResumeCard({ resume, onDelete, onDuplicate }) {
   const navigate = useNavigate();
   const [deleting, setDeleting] = useState(false);
   const [duplicating, setDuplicating] = useState(false);
+  const readiness = readinessCopy(resume.resumeScore || 0);
 
-  const handleDelete = async (e) => {
-    e.stopPropagation();
-    if (!confirm(`Delete "${resume.title}"? This cannot be undone.`)) return;
+  const handleDelete = async (event) => {
+    event.stopPropagation();
+    if (!window.confirm(`Delete “${resume.title}”? This cannot be undone.`)) return;
     setDeleting(true);
     try {
       await api.delete(`/resumes/${resume._id}`);
       onDelete(resume._id);
       toast.success('Resume deleted');
-    } catch { toast.error('Delete failed'); } finally { setDeleting(false); }
+    } catch {
+      toast.error('Delete failed');
+    } finally {
+      setDeleting(false);
+    }
   };
 
-  const handleDuplicate = async (e) => {
-    e.stopPropagation();
+  const handleDuplicate = async (event) => {
+    event.stopPropagation();
     setDuplicating(true);
     try {
       const { data } = await api.post('/resumes', { duplicateFrom: resume._id });
       onDuplicate(data.resume);
-      toast.success('Resume duplicated!');
-    } catch { toast.error('Duplicate failed'); } finally { setDuplicating(false); }
-  };
-
-  const templateColors = {
-    modern: 'from-primary-500 to-violet-500',
-    classic: 'from-slate-600 to-slate-800',
-    minimal: 'from-gray-400 to-gray-600',
-    creative: 'from-rose-500 to-orange-500',
-    executive: 'from-amber-600 to-yellow-700',
+      toast.success('Resume duplicated');
+    } catch {
+      toast.error('Duplicate failed');
+    } finally {
+      setDuplicating(false);
+    }
   };
 
   return (
-    <div
-      onClick={() => navigate(`/builder/${resume._id}`)}
-      className="card-hover cursor-pointer group overflow-hidden animate-fade-in"
-    >
-      {/* Thumbnail */}
-      <div className={`h-36 bg-gradient-to-br ${templateColors[resume.template] || 'from-primary-500 to-violet-500'} relative flex items-center justify-center`}>
-        <FileText className="w-14 h-14 text-white/30" />
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
-        {resume.isPublic && (
-          <span className="absolute top-3 right-3 badge bg-emerald-500/90 text-white text-xs flex items-center gap-1">
-            <Eye className="w-3 h-3" /> Public
-          </span>
-        )}
-        <div className="absolute bottom-3 left-3">
-          <span className="text-white/80 text-xs capitalize px-2 py-0.5 bg-black/20 rounded-full">{resume.template}</span>
+    <article className="dashboard-resume-card" onClick={() => navigate(`/builder/${resume._id}`)}>
+      <ResumeArtwork template={resume.template} title={resume.title} />
+      <div className="dashboard-card-body">
+        <div className="dashboard-card-heading">
+          <div>
+            <p className="dashboard-template-label">{TEMPLATE_LABELS[resume.template] || 'Modern'} template</p>
+            <h2>{resume.title}</h2>
+          </div>
+          <span className={`dashboard-readiness dashboard-readiness-${readiness.tone}`}>{readiness.label}</span>
+        </div>
+
+        <div className="dashboard-card-meta">
+          <span><Clock3 aria-hidden="true" /> Updated {formatDistanceToNow(new Date(resume.updatedAt), { addSuffix: true })}</span>
+          {resume.isPublic && <span><Eye aria-hidden="true" /> {resume.viewCount || 0} views</span>}
+        </div>
+
+        <div className="dashboard-card-footer">
+          <div className="dashboard-score" aria-label={`Resume score: ${resume.resumeScore || 0} out of 100`}>
+            <span>Readiness</span><strong>{resume.resumeScore || 0}</strong>
+          </div>
+          <div className="dashboard-card-actions" onClick={(event) => event.stopPropagation()}>
+            <button type="button" onClick={handleDuplicate} disabled={duplicating} aria-label={`Duplicate ${resume.title}`}>
+              <Copy aria-hidden="true" /> <span>{duplicating ? 'Copying' : 'Duplicate'}</span>
+            </button>
+            <button type="button" onClick={handleDelete} disabled={deleting} className="dashboard-delete-button" aria-label={`Delete ${resume.title}`}>
+              <Trash2 aria-hidden="true" />
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Content */}
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-semibold text-slate-900 dark:text-white text-sm leading-tight truncate">{resume.title}</h3>
-          <ScoreBadge score={resume.resumeScore || 0} />
-        </div>
-
-        <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500 text-xs mb-4">
-          <Clock className="w-3 h-3" />
-          {formatDistanceToNow(new Date(resume.updatedAt), { addSuffix: true })}
-          {resume.viewCount > 0 && (
-            <span className="ml-auto flex items-center gap-1"><Eye className="w-3 h-3" />{resume.viewCount}</span>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={handleDuplicate}
-            disabled={duplicating}
-            className="btn-ghost btn-sm flex-1 text-xs"
-          >
-            <Copy className="w-3 h-3" />
-            {duplicating ? '...' : 'Duplicate'}
-          </button>
-          <button
-            onClick={handleDelete}
-            disabled={deleting}
-            className="btn-ghost btn-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs"
-          >
-            <Trash2 className="w-3 h-3" />
-          </button>
-        </div>
-      </div>
-    </div>
+    </article>
   );
+}
+
+function LoadingCard() {
+  return <div className="dashboard-loading-card"><div /><span /><span /><small /></div>;
 }
 
 export default function Dashboard() {
   const navigate = useNavigate();
-  const { user, logout, toggleTheme, theme } = useAuthStore();
+  const { user, logout, theme, toggleTheme } = useAuthStore();
   const { resumes, setResumes, dashboardLoading, setDashboardLoading } = useResumeStore();
   const [creating, setCreating] = useState(false);
 
@@ -120,116 +142,125 @@ export default function Dashboard() {
       try {
         const { data } = await api.get('/resumes');
         setResumes(data.resumes);
-      } catch { toast.error('Failed to load resumes'); }
-      finally { setDashboardLoading(false); }
+      } catch {
+        toast.error('Failed to load resumes');
+      } finally {
+        setDashboardLoading(false);
+      }
     };
     fetchResumes();
-  }, []);
+  }, [setDashboardLoading, setResumes]);
+
+  const averageScore = useMemo(() => {
+    if (!resumes.length) return 0;
+    return Math.round(resumes.reduce((sum, resume) => sum + (resume.resumeScore || 0), 0) / resumes.length);
+  }, [resumes]);
 
   const handleCreate = async () => {
     setCreating(true);
     try {
       const { data } = await api.post('/resumes', { title: 'Untitled Resume' });
       navigate(`/builder/${data.resume._id}`);
-    } catch { toast.error('Failed to create resume'); setCreating(false); }
+    } catch {
+      toast.error('Failed to create resume');
+      setCreating(false);
+    }
   };
 
   const handleLogout = async () => {
-    try { await api.post('/auth/logout'); } catch {}
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      // Clear the local session even if the server is unavailable.
+    }
     logout();
     navigate('/login');
   };
 
-  const handleDelete = (id) => setResumes(resumes.filter(r => r._id !== id));
+  const handleDelete = (id) => setResumes(resumes.filter((resume) => resume._id !== id));
   const handleDuplicate = (resume) => setResumes([resume, ...resumes]);
+  const firstName = user?.name?.trim().split(' ')[0] || 'there';
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      {/* Navbar */}
-      <nav className="sticky top-0 z-40 glass border-b border-slate-200/50 dark:border-slate-800/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity">
-            <div className="w-8 h-8 bg-gradient-to-br from-primary-600 to-violet-600 rounded-lg flex items-center justify-center">
-              <BadgeCheck className="w-5 h-5 text-white" />
-            </div>
-            <span className="font-bold text-lg gradient-text">CRACK IT!</span>
+    <main className="dashboard-page">
+      <header className="dashboard-nav">
+        <div className="dashboard-shell dashboard-nav-inner">
+          <Link to="/dashboard" className="dashboard-brand" aria-label="Crack IT dashboard">
+            <span><BadgeCheck aria-hidden="true" /></span> CRACK IT<span>!</span>
           </Link>
-          <div className="flex items-center gap-2">
-            <button onClick={toggleTheme} className="btn-ghost p-2 rounded-xl">
-              {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          <div className="dashboard-nav-controls">
+            <button type="button" onClick={toggleTheme} className="dashboard-icon-button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}>
+              {theme === 'dark' ? <Sun aria-hidden="true" /> : <Moon aria-hidden="true" />}
             </button>
-            <button onClick={() => navigate('/profile')} className="btn-ghost p-2 rounded-xl">
-              <User className="w-4 h-4" />
+            <button type="button" onClick={() => navigate('/profile')} className="dashboard-profile-button" aria-label="Open profile settings">
+              <span>{user?.avatar ? <img src={user.avatar} alt="" /> : <UserRound aria-hidden="true" />}</span>
+              <span className="dashboard-profile-name">{firstName}</span>
             </button>
-            <button onClick={handleLogout} className="btn-ghost p-2 rounded-xl text-red-500">
-              <LogOut className="w-4 h-4" />
-            </button>
+            <button type="button" onClick={handleLogout} className="dashboard-icon-button dashboard-logout-button" aria-label="Sign out"><LogOut aria-hidden="true" /></button>
           </div>
         </div>
-      </nav>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-              Good {new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening'},{' '}
-              <span className="gradient-text">{user?.name?.split(' ')[0]}</span> 👋
-            </h1>
-            <p className="text-slate-500 dark:text-slate-400 mt-1">
-              {resumes.length === 0 ? 'Create your first resume to get started' : `You have ${resumes.length} resume${resumes.length !== 1 ? 's' : ''}`}
-            </p>
+      <section className="dashboard-shell dashboard-intro" aria-labelledby="dashboard-title">
+        <div>
+          <p className="dashboard-eyebrow"><Sparkles aria-hidden="true" /> Your career workspace</p>
+          <h1 id="dashboard-title">Good to see you, {firstName}.</h1>
+          <p>Keep the work you are proud of organized, clear, and ready for the right opportunity.</p>
+        </div>
+        <button type="button" onClick={handleCreate} disabled={creating} className="dashboard-create-button">
+          {creating ? <span className="dashboard-spinner" aria-hidden="true" /> : <Plus aria-hidden="true" />}
+          {creating ? 'Creating resume' : 'New resume'}
+        </button>
+      </section>
+
+      {!dashboardLoading && resumes.length > 0 && (
+        <section className="dashboard-shell dashboard-overview" aria-label="Resume overview">
+          <div className="dashboard-overview-card">
+            <span className="dashboard-overview-icon"><FileText aria-hidden="true" /></span>
+            <div><strong>{resumes.length}</strong><p>{resumes.length === 1 ? 'resume in progress' : 'resumes in progress'}</p></div>
           </div>
-          <button onClick={handleCreate} disabled={creating} className="btn-primary gap-2 shrink-0">
-            {creating ? <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Plus className="w-4 h-4" />}
-            New Resume
-          </button>
+          <div className="dashboard-overview-card">
+            <span className="dashboard-overview-icon"><BarChart3 aria-hidden="true" /></span>
+            <div><strong>{averageScore}</strong><p>average readiness score</p></div>
+          </div>
+          <div className="dashboard-overview-card dashboard-overview-note">
+            <span className="dashboard-overview-icon"><Sparkles aria-hidden="true" /></span>
+            <p>{averageScore >= 71 ? 'Your foundation is strong. Tailor a version for the next role you want.' : 'Small improvements add up. Open a resume to see the clearest next step.'}</p>
+          </div>
+        </section>
+      )}
+
+      <section className="dashboard-shell dashboard-library" aria-labelledby="resume-library-title">
+        <div className="dashboard-library-header">
+          <div><p className="dashboard-eyebrow">Your documents</p><h2 id="resume-library-title">Resume library</h2></div>
+          {resumes.length > 0 && <p>{resumes.length} total</p>}
         </div>
 
-        {/* Content */}
         {dashboardLoading ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="card overflow-hidden animate-pulse">
-                <div className="h-36 skeleton" />
-                <div className="p-4 space-y-2">
-                  <div className="skeleton h-4 w-3/4 rounded" />
-                  <div className="skeleton h-3 w-1/2 rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
+          <div className="dashboard-resume-grid" aria-label="Loading resumes"><LoadingCard /><LoadingCard /><LoadingCard /></div>
         ) : resumes.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 text-center animate-fade-in">
-            <div className="text-8xl mb-6">📄</div>
-            <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-3">No resumes yet</h3>
-            <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-sm">
-              Create your first AI-powered resume. It only takes minutes to build something that stands out.
-            </p>
-            <button onClick={handleCreate} disabled={creating} className="btn-primary btn-lg gap-2">
-              <Plus className="w-5 h-5" /> Create My First Resume
+          <div className="dashboard-empty-state">
+            <div className="dashboard-empty-art"><FilePlus2 aria-hidden="true" /><span /></div>
+            <p className="dashboard-eyebrow">Start where you are</p>
+            <h2>Your next opportunity deserves a strong first draft.</h2>
+            <p>You do not need perfect wording to begin. Add the work you remember, then shape it into something clear and convincing.</p>
+            <button type="button" onClick={handleCreate} disabled={creating} className="dashboard-create-button">
+              {creating ? <span className="dashboard-spinner" aria-hidden="true" /> : <Plus aria-hidden="true" />}
+              Create my first resume
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {/* Create card */}
-            <button
-              onClick={handleCreate}
-              disabled={creating}
-              className="card border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-primary-400 dark:hover:border-primary-600 hover:bg-primary-50 dark:hover:bg-primary-950/30 transition-all duration-300 flex flex-col items-center justify-center gap-3 min-h-[220px] cursor-pointer group"
-            >
-              <div className="w-12 h-12 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Plus className="w-6 h-6 text-primary-600" />
-              </div>
-              <span className="text-sm font-medium text-primary-600 dark:text-primary-400">New Resume</span>
+          <div className="dashboard-resume-grid">
+            <button type="button" onClick={handleCreate} disabled={creating} className="dashboard-new-card">
+              <span><Plus aria-hidden="true" /></span>
+              <strong>Create another version</strong>
+              <small>Tailor your story for a new role</small>
+              <ArrowUpRight aria-hidden="true" />
             </button>
-
-            {resumes.map(r => (
-              <ResumeCard key={r._id} resume={r} onDelete={handleDelete} onDuplicate={handleDuplicate} />
-            ))}
+            {resumes.map((resume) => <ResumeCard key={resume._id} resume={resume} onDelete={handleDelete} onDuplicate={handleDuplicate} />)}
           </div>
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }
